@@ -1,0 +1,11 @@
+This is a very basic text editor.
+
+pwd
+cd
+ls
+mkdir
+rm
+
+ssh -i "~/Downloads/BGGN2013_class16_ES.pem" ubuntu@ec2-34-212-228-236.us-west-2.compute.amazonaws.com
+
+scp -i "~/Downloads/BGGN2013_class16_ES.pem" my_notes.txt ubuntu@ec2-34-212-228-236.us-west-2.compute.amazonaws.com:~/work/notes.txt

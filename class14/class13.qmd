@@ -1,0 +1,13 @@
+---
+title: "class 14: RNASeq mini project"
+author: "Eli Sobel 69027989"
+format: pdf
+---
+
+## import data
+
+Counts
+Metadata
+
+
+

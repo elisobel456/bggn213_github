@@ -1,0 +1,75 @@
+---
+title: "class11"
+author: "Eli Sobel A69027989"
+format: pdf
+---
+
+Today, before delving into structure prediction with AlphaFold we will finish off our previous lab10 "comparative structure analysis" section.
+
+```{r}
+library(bio3d)
+
+id <- "1ake_A"
+
+aa <- get.seq(id)
+aa
+```
+
+```{r}
+b <- blast.pdb(aa)
+```
+```{r}
+attributes(b)
+```
+
+```{r}
+head(b$hit.tbl)
+```
+
+```{r}
+hits <- plot(b)
+```
+```{r}
+attributes(hits)
+```
+Top hits that we like from our blast results:
+```{r}
+hits$pdb.id
+```
+
+# find and download all related structures
+
+```{r}
+# donwload related PDB files
+files <- get.pdb(hits$pdb.id, path="pdbs", split=TRUE, gzip=TRUE)
+```
+
+I have now found and downloaded all ADK structures in the PDB database but viewing them is difficult as they need to be aligned and superposed.
+
+I am going to install BiocManager package from CRAN. Then I can use "BiocManager::install("msa")".
+
+```{r}
+# Align releated PDBs
+pdbs <- pdbaln(files, fit = TRUE, exefile="msa")
+```
+
+
+
+## Principal Component analysis
+
+```{r}
+pc <- pca(pdbs)
+plot(pc)
+```
+
+```{r}
+plot(pc, pc.axes = c(1:2))
+```
+
+To examine in more detail what PC1 (or any PC) is capturing here we an plot the loadings or make a movie (trajectory) of moving along PC1
+
+```{r}
+mktrj(pc, pc=1, file="pc1.pdb")
+```
+
+

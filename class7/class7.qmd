@@ -1,0 +1,188 @@
+---
+title: "class 7: Machine Learning 1"
+author: "Eli Sobel A69027989"
+format: pdf
+---
+
+Before we get into clustering methods, let's make some sample data to cluster where we know what the answer should be.
+
+To help with this, I will use the `rnorm()` function.
+
+We can make a histogram of the random numbers generated with rnorm. Can give this two means by making the mean a vector containing 3 and -3.
+
+```{r}
+hist(rnorm(150000, mean=c(3,-3)))
+```
+
+Another method of making a histogram with two centers
+
+```{r}
+n=10000
+
+hist(c(rnorm(n, mean=3), rnorm(n,mean=-3)))
+```
+
+We can also take the reverse of our rnorm values to generate the scatter plot Barry drew on the board, with clusters centered on (3,-3) and (-3,3).
+
+```{r}
+n=30
+x <- c(rnorm(n,mean=3),rnorm(n,mean=-3))
+y <- rev(x)
+
+z <- cbind(x,y)
+plot(z)
+```
+
+## K-means clustering.
+
+
+The function in base R for k-means clustering is called `kmeans()`.
+
+```{r}
+km <- kmeans(z, 2)
+km
+```
+
+
+> Q. Print out the cluster membership vectors.
+
+```{r}
+km$cluster
+```
+
+# plot the data points, coloring each point by the cluster it belongs to
+
+```{r}
+plot(z, col=km$cluster)
+```
+
+Plot with clustering result and add cluster centers.
+
+```{r}
+plot(z, col=km$cluster)
+points(km$centers, col="blue", pch=15, cex=2)
+```
+
+> Q. Can you cluster our data in z into 4 clusters?
+
+```{r}
+four_clusters <- kmeans(z,4)
+plot(z, col=four_clusters$cluster)
+points(four_clusters$centers, col="blue", pch=15, cex=2)
+```
+
+The issue with this approach is that you have to specify how many centers your data has. You can generate a scree plot to make this kmeans strategy a bit more reliable.
+
+
+
+## Hierarchical clustering. Can be bottom-up or bottom-down. We will do bottom-up. Group and merge them in a step-by-step fashion.
+
+The main function for hierarchical clustering in base R is called `hclust()`.
+
+Unlike `kmeans()` I can not just pass in my data as input. I first need a distance matrix.
+
+```{r}
+d <- dist(z)
+hc <- hclust(d)
+hc
+```
+
+```{r}
+plot(hc)
+abline(h=10,col="red")
+```
+
+To get my clustering result (i.e. the membership vector), I can "cut" my tree at a given height. To do this, I will use the `cutree()` function.
+
+```{r}
+grps <- cutree(hc, h=10)
+grps
+```
+
+# Principal Component Analysis
+
+```{r}
+url <- "https://tinyurl.com/UK-foods"
+x <- read.csv(url)
+```
+
+Q1. How many rows and columns are in your new data frame named x? What R functions could you use to answer this questions?
+
+```{r}
+dim(x) # this tells you both rows and columns, but you can use nrow() or ncol() to count them individually.
+head(x)
+```
+
+Change the first column into row names
+
+```{r}
+rownames(x) <- x[,1]
+x <- x[,-1]
+head(x)
+```
+
+Barplots won't be super helpful either. Can 
+
+```{r}
+barplot(as.matrix(x), beside=T, col=rainbow(nrow(x)))
+```
+
+
+
+```{r}
+pairs(x, col=rainbow(10), pch=16)
+```
+
+
+## PCA to the rescue
+
+The main function to do PCA in base R is `prcomp()`.
+
+```{r}
+pca <- prcomp( t(x) )
+summary(pca)
+```
+
+Let's see what is inside our result object `pca` that we just calculated:
+
+```{r}
+attributes(pca)
+```
+
+```{r}
+pca$x
+```
+
+To make our main result figure, called a "PC plot" (or "score plot", "ordination plot" or "PC1 vs PC2 plot")
+
+```{r}
+plot(pca$x[,1], pca$x[,2], col=c("black", "red", "blue", "darkgreen"), pch=16, xlab="PC1 (67.4%)", ylab="PC2 (29%)")
+```
+
+```{r}
+v <- round( pca$sdev^2/sum(pca$sdev^2) * 100 )
+v
+```
+
+```{r}
+w <- summary(pca)
+w$importance
+```
+
+```{r}
+barplot(v, xlab="Principal Component", ylab="Percent Variation")
+```
+
+
+## Variable Loadings plot
+
+Can give us insight on how the original variables (in this case the foods) contribute to our new PC axis
+
+```{r}
+## Lets focus on PC1 as it accounts for > 90% of variance 
+par(mar=c(10, 3, 0.35, 0))
+barplot( pca$rotation[,1], las=2 )
+```
+
+
+
