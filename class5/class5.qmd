@@ -1,0 +1,139 @@
+---
+title: "Class 5: Data Viz with ggplot, 10-16-24"
+author: "Eli Sobel (PID: A69027989)"
+format: pdf
+---
+
+There are many ways to make figures and graphs. One that comes with R is called "base" R, which you use with the `plot()` function.
+
+```{r}
+plot(cars)
+```
+
+A very popular package in this area is called **ggplot2**
+
+Before I can use and add-on package like this, I have to install it. This can be done as such: `install.packages("ggplot2")` command/function.
+
+Then to use the package I need to load it with a `library(ggplot2)` call.
+
+```{r}
+library(ggplot2)
+
+ggplot(cars) + 
+  aes(x=speed,y=dist)+
+  geom_point()
+```
+
+For "simple" plots like this one, base R code will be much shorter than ggplot. 
+
+Let's fit a model and show it on my plot.
+
+```{r}
+library(ggplot2)
+
+ggplot(cars) + 
+  aes(x=speed,y=dist) +
+  geom_point() +
+  geom_smooth()
+```
+
+Every ggplot has at least 3 layers
+
+- **data** (data.frame with the numbers and stuff you want to plot)
+- **aes**thetics (mapping of your data columns to your plot)
+- **geom**s (there are tons of these - points, lines and columns are most common (`geom_point()`, `geom_line()`, `geom_col()`])
+
+```{r}
+mtcars
+```
+
+Make me a ggplot of the `mtcars` data set using `mpg` vs `disp`, and set the size of the points to the `hp`.
+ 
+```{r}
+ggplot(mtcars,aes(mpg,disp)) +
+  geom_point(aes(size=hp,color=am))
+  
+```
+
+
+Now color all points "blue"
+
+```{r}
+ggplot(mtcars,aes(mpg,disp,size=hp)) +
+  geom_point(color="blue") +
+  facet_wrap(~am)
+  
+```
+
+
+
+```{r}
+library(ggrepel)
+
+ggplot(mtcars) +
+  aes(mpg,disp,col=am,label=rownames(mtcars)) +
+  geom_point() +
+  facet_wrap(~am) +
+  geom_text_repel()
+```
+
+
+```{r}
+rownames(mtcars)
+```
+
+Get the results of the differential gene expression analysis:
+
+```{r}
+url <- "https://bioboot.github.io/bimm143_S20/class-material/up_down_expression.txt"
+genes <- read.delim(url)
+nrow(genes)
+```
+
+There are 5196 genes in this dataset.
+
+```{r}
+unique(genes$State)
+```
+
+The `table()` function is useful to tell me how many genes there are of each entry type, or what fraction of each type of gene there are.
+
+```{r}
+table(genes$State)
+round(table(genes$State)/nrow(genes),2)
+```
+
+The functions `nrow()`, `ncol()`, and `table()` are the ones we really need to know.
+
+There are 127 up-regulated genes in this data-set, which is 2% of the total
+
+Here is a scatterplot of the differentially expressed genes.
+
+```{r}
+p <- ggplot(genes) + 
+  aes(x=Condition1, y=Condition2,col=State) +
+  geom_point() 
+p
+```
+
+```{r}
+p + scale_colour_manual(values=c("blue","gray","red")) +
+  labs(title="Gene Expresion Changes Upon Drug Treatment", x="Control (no drug) ", y="Drug Treatment")
+```
+
+
+
+> Key points:
+Save plots with **ggsave()**
+Different plot "types" with different `geoms_**()`
+Faceting with `facet_wrap()`
+Multi-plot layout with the **patchwork** package.
+
+```{r}
+ggplot(mtcars) +
+  aes(mpg,disp) +
+  geom_point()
+
+ggsave("myplot.png")
+```
+
